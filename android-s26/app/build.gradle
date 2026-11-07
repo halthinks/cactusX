@@ -7,6 +7,6 @@ android {
    ndk { abiFilters 'arm64-v8a' }
  }
  externalNativeBuild { cmake { path 'src/main/cpp/CMakeLists.txt' } }
- sourceSets { main { assets.srcDirs += ["../../runtime-assets"] } }
+ sourceSets { main { assets.srcDirs += ["../runtime-assets"] } }
  buildTypes { release { minifyEnabled false } }
 }
