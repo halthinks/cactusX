@@ -31,3 +31,7 @@ Branch: `feature/android-s26-offline-prototype`, source implementation commit `c
 - Existing x86_64 Android UI smoke harness tests the **older diagnostic UI**, not this new screen. Do not transfer its passing UI verdict to the unified screen.
 
 This is a verified build, not a verified end-to-end release.
+
+## Follow-up build (source commit 58d1487)
+
+Whistle transcription now forwards recognized text to Needle for routing; Android's microphone permission callback immediately starts recording after grant. Rebuilt ARM64 debug APK with Gradle 8.10.2: **BUILD SUCCESSFUL**. Current APK SHA-256: `2d0ea095902027574208839d9e03c97c739ab5b2211a9ea600118d8b03c93cd6`. Earlier hash refers to the first unified build and is superseded.
