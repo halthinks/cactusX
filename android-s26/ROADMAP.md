@@ -9,7 +9,7 @@ Status: **prototype built, device execution unverified**. Source: [PR #2](https:
 | A01 | Preserve prototype source and provenance | Git branch, native/runtime/model hashes, reproducible build instructions | PARTIAL — source in PR #2 |
 | A02 | Verify debug APK integrity | APK signature, package ID, native ABI, assets, install constraints, checksum retained | IN PROGRESS |
 | A03 | Deliver installable artifact | Uploaded binary (prefer Google Drive), SHA256 match after download, phone-accessible link | BLOCKED — InstaBox binary not yet transported |
-| A04 | Run Android 14 UI tests | Android container adb install/launch/permission/photo picker/crash log, using x86-compatible UI test flavor | PLANNED |
+| A04 | Run Android 14 UI tests | Android container adb install/launch/permission/photo picker/crash log, using x86-compatible UI test flavor | COMPLETE for UI-only harness — evidence/android14-ui-smoke-20261107.md; native inference untested |
 | A05 | Validate ARM64 runtime on Galaxy S26 Ultra | Install, launch, load all engines, capture device logs and version | BLOCKED on A03 |
 | A06 | Validate three models separately | Needle tool JSON, Whistle mic/noise/silence, Mirage images and refusal/error paths | BLOCKED on A05 |
 | A07 | Stabilize lifecycle and resource use | Repeated switching, process recovery, peak memory, cold/warm latency, thermal, battery | PLANNED |
@@ -39,3 +39,7 @@ Status: **prototype built, device execution unverified**. Source: [PR #2](https:
 On InstaBox `cactusx-android-s26`: `/data/workspace/cactusX/android-s26/app/build/outputs/apk/debug/app-debug.apk`
 
 Last observed SHA256: `d31d46e8b2848abd84e9cd2475092c64d864321a4f8cabc4d8e956b055155cbe`. Recompute before release.
+
+## A04 execution note
+
+On 2026-11-07 UTC, the distinct x86_64 UI-only harness built and passed ADB installation, launch, three-button UI presence, Needle button interaction, Android microphone permission prompt/grant, media picker launch/cancel, and bounded crash-log scan. Full evidence: [Android 14 UI smoke](evidence/android14-ui-smoke-20261107.md). This does not validate native ARM64 models.
