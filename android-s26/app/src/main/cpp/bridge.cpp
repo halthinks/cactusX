@@ -21,7 +21,7 @@ extern "C" JNIEXPORT jstring JNICALL Java_com_halthinks_cactusx_MainActivity_loa
 }
 extern "C" JNIEXPORT jstring JNICALL Java_com_halthinks_cactusx_MainActivity_initNeedle(JNIEnv* e, jobject) {
     std::lock_guard<std::mutex> guard(engineLock);
-    const char* tools=R"([{"name":"get_time","description":"Read the current device time","parameters":{"type":"object","properties":{},"required":[]}}])";
+    const char* tools=R"([{"name":"get_time","description":"Read the current device time, only when the user asks for the time","parameters":{"type":"object","properties":{},"required":[]}},{"name":"open_settings","description":"Open the Android system Settings screen, only when explicitly requested by the user","parameters":{"type":"object","properties":{},"required":[]}}])";
     int rc=cactus_init("Only choose explicitly registered tools. Never invent capabilities.",tools,nullptr);
     return e->NewStringUTF(rc<0?cactus_last_error():"ready");
 }
