@@ -1,0 +1,7 @@
+cmake_minimum_required(VERSION 3.22.1)
+project(cactusx)
+add_library(cactuscore STATIC IMPORTED)
+set_target_properties(cactuscore PROPERTIES IMPORTED_LOCATION "${CMAKE_SOURCE_DIR}/../../../../native/arm64-v8a/libcactus.a")
+add_library(cactusx SHARED bridge.cpp)
+target_include_directories(cactusx PRIVATE "${CMAKE_SOURCE_DIR}/../../../../native/arm64-v8a")
+target_link_libraries(cactusx cactuscore log android m)

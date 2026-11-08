@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "subject": "CactusX Android S26 debug prototype",
+  "source_commit": "bafcf7348607c89f30ff9fde8e59d20b76baa86f",
+  "build_environment": "InstaBox cactusx-android-s26",
+  "build_platform": "Android SDK 35, ARM64",
+  "verification_date": "2026-11-07",
+  "apk": {
+    "path": "app/build/outputs/apk/debug/app-debug.apk",
+    "sha256": "d31d46e8b2848abd84e9cd2475092c64d864321a4f8cabc4d8e956b055155cbe",
+    "package": "com.halthinks.cactusx",
+    "version": "0.1.0",
+    "min_sdk": 28,
+    "target_sdk": 35,
+    "abi": [
+      "arm64-v8a"
+    ],
+    "debug_signed": true,
+    "signature_scheme": "v2",
+    "zip_integrity": "passed"
+  },
+  "assets": {
+    "mirage": {
+      "sha256": "4249a0f7515272ff76b9414bec17d7e7daf84b15b66c7fb4f17fce1e66f9f237"
+    },
+    "needle3": {
+      "sha256": "c9d915eca282ed42d1a09b143b592adb4cc6744ffe2d294adf5cfc5548170c38"
+    },
+    "whistle": {
+      "sha256": "b6e02f048568ac5d01a2042556c658061e699acbc0aa2a1439f52f3d461dffeb"
+    }
+  },
+  "native_archive": {
+    "sha256": "ba543bb4305f7648120b97f7be57e230fc5432a6eb7bc416817d1f2f78a1f5fb"
+  },
+  "limitations": [
+    "No physical Galaxy S26 Ultra run",
+    "No live model inference in Android container",
+    "No release signing",
+    "Artifact not yet uploaded"
+  ]
+}

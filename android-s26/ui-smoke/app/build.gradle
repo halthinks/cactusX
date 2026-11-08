@@ -1,0 +1,4 @@
+plugins { id 'com.android.application' }
+android { namespace 'com.halthinks.cactusx.smoke'; compileSdk 34
+  defaultConfig { applicationId 'com.halthinks.cactusx.smoke'; minSdk 28; targetSdk 34; versionCode 1; versionName '0.1.0-smoke' }
+}
