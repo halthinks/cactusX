@@ -35,3 +35,7 @@ This is a verified build, not a verified end-to-end release.
 ## Follow-up build (source commit 58d1487)
 
 Whistle transcription now forwards recognized text to Needle for routing; Android's microphone permission callback immediately starts recording after grant. Rebuilt ARM64 debug APK with Gradle 8.10.2: **BUILD SUCCESSFUL**. Current APK SHA-256: `2d0ea095902027574208839d9e03c97c739ab5b2211a9ea600118d8b03c93cd6`. Earlier hash refers to the first unified build and is superseded.
+
+## Persistent history / speech output tranche
+
+Source commit `6669ffdb`: optional local transcript history (disabled by default, capped at 80 messages, explicit Clear and opt-out deletion), optional Android TextToSpeech output (disabled by default, shutdown lifecycle). ARM64 Gradle build: **SUCCESS**, SHA256 `9315bfe6a6894f267c0f4b5bc08e7f6f829b65bc0c595f5298c18841ed912d7b`. These features remain **device-runtime unverified**. SharedPreferences storage is private app storage but not separately application-encrypted; do not interpret offline as equivalent to encrypted-at-rest.
