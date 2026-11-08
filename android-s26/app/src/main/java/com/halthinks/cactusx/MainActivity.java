@@ -26,6 +26,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 import org.json.JSONObject;
 import org.json.JSONArray;
+import android.app.AlertDialog;
+import android.provider.Settings;
+import java.text.DateFormat;
+import java.util.Date;
 import android.speech.tts.TextToSpeech;
 import java.util.Locale;
 import java.io.ByteArrayOutputStream;
@@ -269,10 +273,48 @@ public class MainActivity extends Activity {
         if(!ready||busy) { Toast.makeText(this,"Engine busy or not ready",Toast.LENGTH_SHORT).show();return; }
         busy=true; setStatus(progress);
         worker.execute(() -> {
-            try { bubble(call.call(),false); }
+            try { renderModelResult(call.call()); }
             catch(Exception ex) { bubble("Unable to complete: "+ex.getMessage(),false); }
             finally { busy=false;setStatus("● Ready  •  On-device"); }
         });
+    }
+    private void renderModelResult(String raw) {
+        try {
+            JSONObject result=new JSONObject(raw);
+            JSONArray calls=result.optJSONArray("function_calls");
+            if(!"call".equals(result.optString("type")) || calls==null || calls.length()==0) {
+                bubble(raw,false);return;
+            }
+            for(int i=0;i<calls.length();i++) {
+                JSONObject call=calls.optJSONObject(i);
+                if(call==null)continue;
+                String name=call.optString("name","");
+                JSONObject args=call.optJSONObject("arguments");
+                bubble("Proposed action: "+name+"\nArguments: "+(args==null?"{}":args.toString())+"\nAwaiting approval.",false);
+                if(!"get_time".equals(name) && !"open_settings".equals(name)) {
+                    bubble("This action is not available in the current app.",false);continue;
+                }
+                if(args!=null && args.length()!=0) {
+                    bubble("Action rejected: unexpected arguments.",false);continue;
+                }
+                runOnUiThread(() -> new AlertDialog.Builder(this)
+                    .setTitle("Approve phone action?")
+                    .setMessage("Needle proposes: "+("get_time".equals(name)?"Read the device's current time":"Open Android Settings")+"\n\nNothing happens without your approval.")
+                    .setNegativeButton("Deny",(dialog,which)->bubble("Action denied: "+name,false))
+                    .setPositiveButton("Approve",(dialog,which)->runApprovedAction(name))
+                    .show());
+            }
+        } catch(Exception malformed) { bubble(raw,false); }
+    }
+    private void runApprovedAction(String name) {
+        try {
+            if("get_time".equals(name)) {
+                bubble("Device time: "+DateFormat.getDateTimeInstance().format(new Date()),false);
+            } else if("open_settings".equals(name)) {
+                startActivity(new Intent(Settings.ACTION_SETTINGS));
+                bubble("Android Settings opened.",false);
+            }
+        } catch(Exception ex) { bubble("Action failed: "+ex.getMessage(),false); }
     }
     private void choosePhoto() {
         if(!ready || busy) { Toast.makeText(this,"Engine busy or not ready",Toast.LENGTH_SHORT).show();return; }
