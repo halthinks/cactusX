@@ -49,3 +49,7 @@ On 2026-11-07 UTC, the distinct x86_64 UI-only harness built and passed ADB inst
 Native ARM64 app now has a dark conversation view, single text composer, voice recording/transcription, image attachment/description, model status, and serialized JNI calls. Gradle `assembleDebug` passed with APK SHA256 `364fc390ea156715b45385f74f52d258d69b50593b01a6bdea90be6646c0ccf7`. Evidence: [unified build](evidence/unified-build-20261107.md). This is a build-only qualification, not a device runtime PASS. Prior Android 14 smoke tests apply to the separate UI-only harness, not the new native screen.
 
 Next: obtain a device-accessible APK transfer; validate ARM64 runtime, add persisted chat with user-controlled deletion, add opt-in speech output, implement typed permission-gated tool adapters, and run thermal/memory/switching tests.
+
+## Approved-action prototype (2026-11-07 UTC)
+
+The native tool registry now exposes `get_time` and `open_settings`. The app parses structured Needle `function_calls`, rejects unexpected argument fields and unknown actions, and presents a per-action Android approval dialog. Built ARM64 APK SHA256: `9f66304b353421ced6793327b1cecbfec813bb589bd32463b92d2be807f2db89`. See [evidence](evidence/approved-actions-20261107.md). Device execution remains **untested**. See also the [use-case catalog](USE_CASE_CATALOG.md) for planned adapters and platform caveats.
