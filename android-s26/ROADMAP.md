@@ -43,3 +43,9 @@ Last observed SHA256: `d31d46e8b2848abd84e9cd2475092c64d864321a4f8cabc4d8e956b05
 ## A04 execution note
 
 On 2026-11-07 UTC, the distinct x86_64 UI-only harness built and passed ADB installation, launch, three-button UI presence, Needle button interaction, Android microphone permission prompt/grant, media picker launch/cancel, and bounded crash-log scan. Full evidence: [Android 14 UI smoke](evidence/android14-ui-smoke-20261107.md). This does not validate native ARM64 models.
+
+## Unified interface implementation (2026-11-07 UTC)
+
+Native ARM64 app now has a dark conversation view, single text composer, voice recording/transcription, image attachment/description, model status, and serialized JNI calls. Gradle `assembleDebug` passed with APK SHA256 `364fc390ea156715b45385f74f52d258d69b50593b01a6bdea90be6646c0ccf7`. Evidence: [unified build](evidence/unified-build-20261107.md). This is a build-only qualification, not a device runtime PASS. Prior Android 14 smoke tests apply to the separate UI-only harness, not the new native screen.
+
+Next: obtain a device-accessible APK transfer; validate ARM64 runtime, add persisted chat with user-controlled deletion, add opt-in speech output, implement typed permission-gated tool adapters, and run thermal/memory/switching tests.
