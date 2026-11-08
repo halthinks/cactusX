@@ -25,6 +25,9 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 import org.json.JSONObject;
+import org.json.JSONArray;
+import android.speech.tts.TextToSpeech;
+import java.util.Locale;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.util.concurrent.Callable;
@@ -50,12 +53,18 @@ public class MainActivity extends Activity {
     private volatile boolean ready=false;
     private volatile boolean busy=false;
     private int messageCount=0;
+    private TextToSpeech speaker;
+    private boolean speakEnabled=false;
+    private boolean historyEnabled=false;
+    private Button speakToggle, historyToggle;
 
     @Override public void onCreate(Bundle saved) {
         super.onCreate(saved);
         getWindow().setStatusBarColor(BG);
         getWindow().setNavigationBarColor(BG);
+        historyEnabled=getPreferences(MODE_PRIVATE).getBoolean("history_enabled",false);
         drawInterface();
+        restoreHistory();
         worker.execute(this::loadModels);
     }
 
@@ -109,6 +118,28 @@ public class MainActivity extends Activity {
         }
         root.addView(models,space(-1,-2,18));
 
+        LinearLayout settings=horizontal();
+        speakToggle=action("🔈 Voice off",SURFACE);
+        historyToggle=action(historyEnabled?"History on":"History off",SURFACE);
+        Button clear=action("Clear",SURFACE);
+        settings.addView(speakToggle,new LinearLayout.LayoutParams(0,dp(42),1));
+        LinearLayout.LayoutParams hp=new LinearLayout.LayoutParams(0,dp(42),1);hp.leftMargin=dp(7);
+        settings.addView(historyToggle,hp);
+        LinearLayout.LayoutParams cp=new LinearLayout.LayoutParams(0,dp(42),1);cp.leftMargin=dp(7);
+        settings.addView(clear,cp);
+        root.addView(settings,space(-1,-2,9));
+        speakToggle.setOnClickListener(v -> toggleSpeech());
+        historyToggle.setOnClickListener(v -> {
+            historyEnabled=!historyEnabled;
+            getPreferences(MODE_PRIVATE).edit().putBoolean("history_enabled",historyEnabled).apply();
+            historyToggle.setText(historyEnabled?"History on":"History off");
+            if(!historyEnabled) getPreferences(MODE_PRIVATE).edit().remove("chat_history").apply();
+        });
+        clear.setOnClickListener(v -> {
+            getPreferences(MODE_PRIVATE).edit().remove("chat_history").apply();
+            messages.removeAllViews();messageCount=0;addWelcome();
+            Toast.makeText(this,"Local conversation cleared",Toast.LENGTH_SHORT).show();
+        });
         state=label("Starting offline engine…",12,MUTED,false);
         state.setPadding(dp(4),dp(12),dp(4),dp(8));
         root.addView(state);
@@ -165,8 +196,52 @@ public class MainActivity extends Activity {
             LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(-2,-2);
             p.gravity=user?Gravity.RIGHT:Gravity.LEFT;p.topMargin=dp(14);
             messages.addView(message,p); messageCount++;
+            persistMessage(value,user);
+            if(!user && speakEnabled && speaker!=null && value.length()<1000)
+                speaker.speak(value,TextToSpeech.QUEUE_FLUSH,null,"cactusx-response");
             transcript.post(() -> transcript.fullScroll(View.FOCUS_DOWN));
         });
+    }
+    private void toggleSpeech() {
+        speakEnabled=!speakEnabled;
+        speakToggle.setText(speakEnabled?"🔊 Voice on":"🔈 Voice off");
+        if(speakEnabled && speaker==null) {
+            speaker=new TextToSpeech(this,status -> {
+                if(status==TextToSpeech.SUCCESS) speaker.setLanguage(Locale.getDefault());
+                else runOnUiThread(() -> { speakEnabled=false;speakToggle.setText("Voice unavailable"); });
+            });
+        }
+        if(!speakEnabled && speaker!=null) speaker.stop();
+    }
+    private void persistMessage(String text,boolean user) {
+        if(!historyEnabled)return;
+        try {
+            String prior=getPreferences(MODE_PRIVATE).getString("chat_history","[]");
+            JSONArray arr=new JSONArray(prior);
+            JSONObject event=new JSONObject();
+            event.put("user",user);event.put("text",text);
+            arr.put(event);
+            // Bounded local history, never copied to a server.
+            JSONArray bounded=new JSONArray();
+            for(int i=Math.max(0,arr.length()-80);i<arr.length();i++)bounded.put(arr.getJSONObject(i));
+            getPreferences(MODE_PRIVATE).edit().putString("chat_history",bounded.toString()).apply();
+        } catch(Exception ignored) { }
+    }
+    private void restoreHistory() {
+        if(!historyEnabled)return;
+        try {
+            JSONArray events=new JSONArray(getPreferences(MODE_PRIVATE).getString("chat_history","[]"));
+            for(int i=0;i<events.length();i++) {
+                JSONObject e=events.getJSONObject(i);
+                TextView message=label(e.optString("text"),15,TEXT,false);
+                message.setTextIsSelectable(true);message.setPadding(dp(15),dp(12),dp(15),dp(12));
+                boolean user=e.optBoolean("user",false);
+                message.setBackground(fill(user?0xff175a61:SURFACE,18));
+                LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(-2,-2);
+                p.gravity=user?Gravity.RIGHT:Gravity.LEFT;p.topMargin=dp(14);
+                messages.addView(message,p);messageCount++;
+            }
+        } catch(Exception ignored) { getPreferences(MODE_PRIVATE).edit().remove("chat_history").apply(); }
     }
     private void setStatus(String text) { runOnUiThread(() -> state.setText(text)); }
     private void loadModels() {
@@ -272,5 +347,9 @@ public class MainActivity extends Activity {
             return out.toByteArray();
         }
     }
-    @Override protected void onDestroy(){worker.shutdown();super.onDestroy();}
+    @Override protected void onDestroy(){
+        worker.shutdown();
+        if(speaker!=null){speaker.stop();speaker.shutdown();speaker=null;}
+        super.onDestroy();
+    }
 }
