@@ -229,8 +229,19 @@ public class MainActivity extends Activity {
             for(int i=0;i<filled;i++)samples[i]=shorts[i]/32768f;
             String result=transcribe(samples);
             // The transcript stays visible. Model-proposed tools are never executed automatically.
-            return "Whistle transcription:\n"+result;
+            String text=result;
+            try { JSONObject decoded=new JSONObject(result); text=decoded.optString("text",result); } catch(Exception ignored) {}
+            if(text.trim().isEmpty()) return "Whistle detected no speech";
+            String routed=complete(text);
+            return "Heard: "+text+"\n\nNeedle result:\n"+routed;
         });
+    }
+    @Override public void onRequestPermissionsResult(int request,String[] permissions,int[] results) {
+        super.onRequestPermissionsResult(request,permissions,results);
+        if(request==MIC_PERMISSION) {
+            if(results.length>0 && results[0]==PackageManager.PERMISSION_GRANTED) startRecording();
+            else bubble("Microphone permission denied. Voice input remains disabled.",false);
+        }
     }
     @Override protected void onActivityResult(int request,int result,Intent data) {
         super.onActivityResult(request,result,data);
